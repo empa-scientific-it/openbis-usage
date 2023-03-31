@@ -1,3 +1,5 @@
+import io.ktor.plugin.features.*
+
 plugins {
 
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
@@ -47,7 +49,7 @@ dependencies {
     implementation(libs.openbis.common)
     implementation(libs.openbis.commonbase)
     implementation(libs.kotlinx.serialization)
-
+    implementation(libs.kotlinx.datetime)
     //Jackson
     implementation(libs.jackson.databind)
 
@@ -69,8 +71,15 @@ tasks.test {
     useJUnitPlatform()
 }
 
+
 kotlin {
-    jvmToolchain(15)
+    jvmToolchain(18)
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(18))
+    }
 }
 
 application {

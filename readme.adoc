@@ -1,0 +1,93 @@
+= OpenBIS usage statistics collector
+
+== Architecture
+
+=== Introduction
+This document described the openBIS usage statistics collector. It is used to monitor one or more openBIS instances and collect all user events on the instance. The purpose of collecting these logs is to monitor activity on the instance to determine if users are adopting openBIS and whether the instances are being loaded optimally.
+
+
+==== Requirements
+For this system, we have following goals:
+
+* The system shall collect all relevant user events on any given openBIS instance
+* The system must be easily configurable
+* The system shall return the data in a human and machine-readable format
+
+
+=== Quality goals
+
+The following quality goals shall be met:
+
+* Every relevant event will be collected and reported
+* Security is ensured by avoiding storing credentials in the system
+* The system is configurable by allowing to disable or enable choosen event types
+
+=== Stakeholder
+
+[%header,cols=3*]
+|===
+|Name
+|Role
+|Expectations
+
+|Scientific IT / Developers
+|Architecture
+|Should develop the architecture and implement it
+
+|Scientific IT
+|OpenBIS project management
+|Should get access to the raw data for presentation and visualisation
+
+|Head of Scientific IT
+|Decisions on OpenBIS
+|Should decide on the future of openBIS@Empa given the outcomes of data collection
+
+|ETH SIS
+|API
+|Should be informed that their API is being used.
+
+|===
+
+== Constraints
+
+=== Technical constraints
+
+The system shall:
+
+* Work on unix systems
+* Run from the command line
+* Report the results as plain text files
+* Be integrated in a larger component for reporting and visualisation
+
+
+=== Organizational constraints
+
+* Only one developer is available
+* Results should be available quickly
+* Limited support for CI/CD
+* No access to openBIS from outside of Empa
+
+
+== Context
+
+=== Business Context
+
+[plantuml, target=diagram-classes]
+....
+component OpenBIS as ob
+component OpenBIS1 as ob1
+component Collector
+file [Activity Log] as log
+person Stakeholder as stakeholder
+person User as user
+person User1 as user1
+
+user --> ob: uses system
+user1 --> ob1: uses system
+stakeholder --> log : uses for decision
+
+Collector --> ob : collects activity
+Collector --> ob1 : collects activity
+Collector --> log: reports activity
+
+....
