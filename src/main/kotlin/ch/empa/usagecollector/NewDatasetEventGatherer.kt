@@ -5,7 +5,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria
 import kotlinx.datetime.LocalDate
 
-class NewDatasetEventGatherer(override val api: IApplicationServerApi, override val startDate: LocalDate, override val endDate: LocalDate): IEventGatherer {
+class NewDatasetEventGatherer(override val api: IApplicationServerApi, override val url: String, override val startDate: LocalDate, override val endDate: LocalDate): IEventGatherer {
     override fun gather(token: String): List<InstanceEvent> {
         val searchCriteria = DataSetSearchCriteria().apply {
             withAndOperator().apply {
@@ -20,7 +20,9 @@ class NewDatasetEventGatherer(override val api: IApplicationServerApi, override 
                     withSpace()
                 }
             }
-            withRegistrator()
+            withRegistrator().apply {
+                withSpace()
+            }
             withSample().apply {
                 withSpace()
             }
@@ -28,7 +30,7 @@ class NewDatasetEventGatherer(override val api: IApplicationServerApi, override 
         }
         val results = api.searchDataSets(token, searchCriteria, fetchOptions)
         val res = results.objects.map {
-            NewDatasetEvent(DateUtils.toDateTime(it.registrationDate), it?.sample?.space?.code ?: it?.experiment?.project?.space?.code ?: "something",  it.physicalData.size)
+            NewDatasetEvent(DateUtils.toDateTime(it.registrationDate), it?.sample?.space?.code ?: it?.experiment?.project?.space?.code ?: "something",  it?.physicalData?.size ?: 0, url)
         }
         return res
     }

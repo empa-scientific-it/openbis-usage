@@ -12,6 +12,9 @@ plugins {
     //Serialisation
     alias(libs.plugins.kotlin.serialization)
 
+    alias(libs.plugins.dataframe)
+
+
     // Apply the application plugin to add support for building a CLI application in Java.
     application
 
@@ -46,15 +49,16 @@ dependencies {
 
     //Openbis v3 API
     implementation(libs.openbis)
-    implementation(libs.openbis.common)
-    implementation(libs.openbis.commonbase)
+    //implementation(libs.openbis.common)
+    //implementation(libs.openbis.commonbase)
     implementation(libs.kotlinx.serialization)
     implementation(libs.kotlinx.datetime)
-    //Jackson
-    implementation(libs.jackson.databind)
+    implementation(libs.kotlinx.dataframe)
+    implementation(libs.kotlinx.coroutines)
+    //Lets plot
+    implementation(libs.kotlinx.letsplot.jfx)
+    implementation(libs.kotlinx.letsplot.jvm)
 
-    //Email validation
-    implementation(libs.jakarta.mail)
 
     //Command line
     implementation(libs.kotlinx.cli)

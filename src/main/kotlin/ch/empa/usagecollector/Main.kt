@@ -1,46 +1,55 @@
 package ch.empa.usagecollector
 
+import ch.empa.usagecollector.auth.importCredentials
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.EventType
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.fetchoptions.EventFetchOptions
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventSearchCriteria
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.ProjectSearchCriteria
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.CustomASServiceSearchCriteria
 
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.datetime.*
-import java.time.LocalDate
 
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.encodeToString
+
 import java.io.File
+import jetbrains.datalore.plot.PlotSvgExport
+import org.jetbrains.kotlinx.dataframe.api.toMap
+import org.jetbrains.letsPlot.export.ggsave
+import org.jetbrains.letsPlot.facet.facetWrap
+import org.jetbrains.letsPlot.geom.geomLine
+import org.jetbrains.letsPlot.intern.toSpec
+import org.jetbrains.letsPlot.intern.Plot
+import org.jetbrains.letsPlot.letsPlot
+import org.jetbrains.letsPlot.scale.scaleYLog10
+
+fun getStatistics(
+    ob: IApplicationServerApi,
+    url: String,
+    token: String,
+    span: DatePeriod = DatePeriod(years = 4)
+): EventStatistics {
+    val now: Instant = Clock.System.now()
+    val end: LocalDate = now.toLocalDateTime(TimeZone.currentSystemDefault()).date
+    val start = end.minus(span)
+    return EventStatistics.build(ob, url, token, start.toJavaLocalDate(), end.toJavaLocalDate(), DatePeriod(days = 1))
+}
+
 
 fun main(args: Array<String>) {
-    val URL = "http://openbis-empa-lab402.ethz.ch/openbis/openbis" + IApplicationServerApi.SERVICE_URL
-    val ob = HttpInvokerUtils.createServiceStub(IApplicationServerApi::class.java, URL, 1000)
-    val token = ob.login("basi_admin", "eiVo2lee")
-    val projectSearchCriteria = ProjectSearchCriteria().withAndOperator()
-    val fetchOptions = ProjectFetchOptions().apply {
-        withAttachments()
-        withHistory()
-        withLeader()
-        withSpace()
-        withExperiments().apply {
-            withAttachments()
-            withDataSets()
-            withSamples()
+    val credentials = importCredentials(File(args[0]))
+    val stats = runBlocking {
+        val coros = CoroutineScope(IO).async {
+
+            val res = credentials.credentials.map {
+                val ob = it.getService()
+                val token = it.getToken()
+                getStatistics(ob, it.url, token)
+            }
+            return@async res
+
         }
+        coros.await()
+
     }
-    val now: Instant = Clock.System.now()
-    val end: kotlinx.datetime.LocalDate = now.toLocalDateTime(TimeZone.currentSystemDefault()).date
-    val start = end.minus(DatePeriod(days = 2 * 365))
-    val ev = EventLog.buildBetween(ob, token, start, end)
-    val stat = EventStatistics.build(ob, token, start.toJavaLocalDate(), end.toJavaLocalDate(), DatePeriod(days = 1))
-    println(stat)
-    ev.write(File("./logs/events.log"))
-
-
+    val res = EventStatistics(stats.flatMap { it.events })
+    val p = letsPlot(res.toDf().toMap()) + geomLine{x="date"; y="count"} + facetWrap("event") + scaleYLog10()
+    ggsave(p, "./plot.svg")
+    res.writeCSV(File(args[1]))
 }

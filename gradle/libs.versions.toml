@@ -2,25 +2,35 @@
 openbis = "20.10.5"
 kotlinx-serialization = "1.4.1"
 kotlinx-cli = "0.3.5"
-kotlin = "1.7.20"
+kotlin = "1.8.0"
 kotlinx-datetime = "0.4.0"
+kotlinx-dataframe = "0.9.0"
+kotlinx-coroutines = "1.7.0-Beta"
 [libraries]
-kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+
 openbis = { module = "openbis:openbis-v3-api", version.ref = "openbis" }
 openbis-common = { module = "openbis:common", version = "r20230123" }
 openbis-commonbase = { module = "openbis:commonbase", version = "r20230123" }
 
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
-test = { module = "org.jetbrains.kotlin:test"}
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit5" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
+kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version = "latest.release" }
+
+test = { module = "org.jetbrains.kotlin:test" }
 kotlinx-cli = { module = "org.jetbrains.kotlinx:kotlinx-cli", version.ref = "kotlinx-cli" }
+kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
-jakarta-mail = { module = "jakarta.mail:jakarta.mail-api", version = "latest.release" }
-jackson-databind = {module = "com.fasterxml.jackson.core:jackson-databind", version = "latest.release"}
-kotlin-stdlib = {module="org.jetbrains.kotlin:kotlin-stdlib-jdk8"}
-kotlin-bom = {module="org.jetbrains.kotlin:kotlin-bom", version="latest.release"}
+kotlinx-dataframe = { module = "org.jetbrains.kotlinx:dataframe", version.ref = "kotlinx-dataframe" }
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+
+kotlinx-letsplot-jfx = {module = "org.jetbrains.lets-plot:lets-plot-jfx", version="3.1.0"}
+kotlinx-letsplot-jvm = {module = "org.jetbrains.lets-plot:lets-plot-kotlin-jvm", version="4.3.0"}
+
+
 [plugins]
-kotlin = {id = "org.jetbrains.kotlin.jvm", version.ref="kotlin"}
-kotlin-serialization = {id = "org.jetbrains.kotlin.plugin.serialization", version.ref="kotlin"}
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 dockerCompose = { id = "com.avast.gradle.docker-compose", version = "0.16.11" }
-fatJar = {id="io.ktor.plugin", version="2.2.3"}
+fatJar = { id = "io.ktor.plugin", version = "2.2.3" }
+dataframe = {id = "org.jetbrains.kotlinx.dataframe", version = "latest.release"}

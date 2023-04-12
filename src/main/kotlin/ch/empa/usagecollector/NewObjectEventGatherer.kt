@@ -5,7 +5,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria
 import kotlinx.datetime.LocalDate
 
-class NewObjectEventGatherer(override val api: IApplicationServerApi, override val startDate: LocalDate, override val endDate: LocalDate): IEventGatherer {
+class NewObjectEventGatherer(override val api: IApplicationServerApi, override val url: String, override val startDate: LocalDate, override val endDate: LocalDate): IEventGatherer {
 
     override fun gather(token: String): List<InstanceEvent> {
         val searchCriteria = SampleSearchCriteria().apply {
@@ -18,9 +18,11 @@ class NewObjectEventGatherer(override val api: IApplicationServerApi, override v
             withSpace()
             withExperiment()
             withProject()
-            withRegistrator()
+            withRegistrator().apply {
+                withSpace()
+            }
         }
         val result = api.searchSamples(token, searchCriteria, fetchOptions)
-        return result.objects.map{it -> NewObjectEvent(DateUtils.toDateTime(it.registrationDate), it.space.code, it?.experiment?.code)}
+        return result.objects.map{it -> NewObjectEvent(DateUtils.toDateTime(it.registrationDate), it?.space?.code, it?.experiment?.code, url)}
     }
 }
